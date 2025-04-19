@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = 'com.devsung.excel'
+version = '1.0.0' // 정식 버전으로 변경
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    withJavadocJar() // javadoc JAR 생성
+    withSourcesJar() // 소스 JAR 생성
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+// Constants for Dependency Versions
+def dependencyVersions = [
+        poi               : '5.4.1',
+        poiOoxml          : '5.4.1',
+        commonsCollections: '4.4',
+]
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    api "org.apache.poi:poi:${dependencyVersions.poi}"
+    api "org.apache.poi:poi-ooxml:${dependencyVersions.poiOoxml}"
+    api "org.apache.poi:poi-ooxml-lite:${dependencyVersions.poi}"
+    api "org.apache.commons:commons-collections4:${dependencyVersions.commonsCollections}"
+}
+
+test {
+    useJUnitPlatform()
+}
