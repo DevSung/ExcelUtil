@@ -2,7 +2,7 @@ package com.devsung.excel.service;
 
 import com.devsung.excel.core.ExcelProcessor;
 import com.devsung.excel.core.PoiExcelProcessor;
-import com.devsung.excel.model.SheetDataRequest;
+import com.devsung.excel.model.SheetData;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.*;
@@ -31,7 +31,7 @@ public class ExcelService {
         return reportGenerator.generateReport(template, sheetName, data);
     }
 
-    public ByteArrayOutputStream generateMultiSheetReport(String templateName, List<SheetDataRequest> sheets)
+    public ByteArrayOutputStream generateMultiSheetReport(String templateName, List<SheetData> sheets)
             throws IOException {
 
         File template = templateManager.getTemplate(templateName);
@@ -39,8 +39,8 @@ public class ExcelService {
         try (InputStream in = new FileInputStream(template);
              Workbook workbook = processor.loadWorkbook(in)) {
 
-            for (SheetDataRequest sheet : sheets) {
-                processor.writeSheet(workbook, sheet.getSheetName(), sheet.getData());
+            for (SheetData sheet : sheets) {
+                processor.writeSheet(workbook, sheet.sheetName(), sheet.data());
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();

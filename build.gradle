@@ -26,7 +26,6 @@ publishing {
     }
 }
 
-// Constants for Dependency Versions
 def dependencyVersions = [
         poi               : '5.4.1',
         poiOoxml          : '5.4.1',
