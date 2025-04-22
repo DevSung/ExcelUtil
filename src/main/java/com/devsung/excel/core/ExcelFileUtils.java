@@ -83,7 +83,8 @@ public class ExcelFileUtils {
      * @return 치환된 파일명
      */
     private static String sanitizeFileName(String fileName) {
-        return fileName.replaceAll("[\\\\/:*?\"<>|]", "_"); // 특수문자 \ / : * ? " < > | 를 _ 로 치환
+        // 특수문자 \ / : * ? " < > | 를 _ 로 치환
+        return fileName.replaceAll("[\\\\/:*?\"<>|]", "_");
     }
 
 }
