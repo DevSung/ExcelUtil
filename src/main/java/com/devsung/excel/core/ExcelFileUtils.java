@@ -24,7 +24,19 @@ public class ExcelFileUtils {
             throw new IllegalArgumentException("Only .xlsx files are allowed");
         }
 
-        Files.copy(inputStream, savePath, StandardCopyOption.REPLACE_EXISTING);
+        // 파일명에서 특수문자를 치환
+        String sanitizedTemplateName = sanitizeFileName(templateName);
+
+        // 새로운 저장 경로 생성
+        Path sanitizedSavePath = savePath.resolveSibling(sanitizedTemplateName);
+
+        // 디렉토리가 존재하지 않으면 생성
+        if (!Files.exists(sanitizedSavePath.getParent())) {
+            Files.createDirectories(sanitizedSavePath.getParent());
+        }
+
+        // 파일 복사
+        Files.copy(inputStream, sanitizedSavePath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
@@ -62,6 +74,16 @@ public class ExcelFileUtils {
      */
     public static boolean templateExists(Path templatePath) {
         return Files.exists(templatePath);
+    }
+
+    /**
+     * 파일명에 포함된 특수문자를 치환합니다.
+     *
+     * @param fileName 원본 파일명
+     * @return 치환된 파일명
+     */
+    private static String sanitizeFileName(String fileName) {
+        return fileName.replaceAll("[\\\\/:*?\"<>|]", "_"); // 특수문자 \ / : * ? " < > | 를 _ 로 치환
     }
 
 }
