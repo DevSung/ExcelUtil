@@ -8,8 +8,13 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Set;
 
 public class ExcelFileUtils {
+
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".xlsx", ".xls");
+    private static final String SPECIAL_CHARS_PATTERN = "[\\\\/:*?\"<>|]";
+    private static final String REPLACEMENT_CHAR = "_";
 
     /**
      * 엑셀 템플릿 파일을 저장합니다.
@@ -19,10 +24,8 @@ public class ExcelFileUtils {
      * @param savePath     템플릿 파일을 저장할 경로
      * @throws IOException 파일 복사 중 오류가 발생했을 경우
      */
-    public static void saveTemplate(String templateName, InputStream inputStream, Path savePath) throws IOException {
-        if (templateName == null || (!templateName.endsWith(".xlsx") && !templateName.endsWith(".xls"))) {
-            throw new IllegalArgumentException("Only .xlsx files are allowed");
-        }
+    public static void save(String templateName, InputStream inputStream, Path savePath) throws IOException {
+        validateTemplateName(templateName);
 
         // 파일명에서 특수문자를 치환
         String sanitizedTemplateName = sanitizeFileName(templateName);
@@ -40,15 +43,16 @@ public class ExcelFileUtils {
     }
 
     /**
-     * 주어진 Workbook 객체를 출력 스트림에 작성하고 닫습니다.
+     * 주어진 Workbook 객체를 출력 스트림에 작성합니다.
      *
      * @param workbook 작성할 Workbook 객체
      * @param out      출력 스트림
      * @throws IOException 워크북 작성 중 오류가 발생한 경우
      */
-    public static void writeExcel(Workbook workbook, OutputStream out) throws IOException {
-        workbook.write(out);
-        workbook.close();
+    public static void write(Workbook workbook, OutputStream out) throws IOException {
+        try (workbook) {
+            workbook.write(out);
+        }
     }
 
     /**
@@ -58,12 +62,8 @@ public class ExcelFileUtils {
      * @return 삭제 성공 여부
      * @throws IOException 파일 삭제 중 오류가 발생했을 경우
      */
-    public static boolean deleteTemplate(Path path) throws IOException {
-        if (Files.exists(path)) {
-            Files.delete(path);
-            return true;
-        }
-        return false;
+    public static boolean delete(Path path) throws IOException {
+        return Files.exists(path) && Files.deleteIfExists(path);
     }
 
     /**
@@ -72,8 +72,26 @@ public class ExcelFileUtils {
      * @param templatePath 확인할 템플릿 경로
      * @return 존재 여부
      */
-    public static boolean templateExists(Path templatePath) {
+    public static boolean exists(Path templatePath) {
         return Files.exists(templatePath);
+    }
+
+    /**
+     * 템플릿 이름이 유효한지 검증합니다.
+     *
+     * @param templateName 검증할 템플릿 이름
+     */
+    private static void validateTemplateName(String templateName) {
+        if (templateName == null) {
+            throw new IllegalArgumentException("Template name cannot be null");
+        }
+
+        boolean validExtension = ALLOWED_EXTENSIONS.stream()
+                .anyMatch(templateName::endsWith);
+
+        if (!validExtension) {
+            throw new IllegalArgumentException("Only " + ALLOWED_EXTENSIONS + " files are allowed");
+        }
     }
 
     /**
@@ -84,7 +102,7 @@ public class ExcelFileUtils {
      */
     private static String sanitizeFileName(String fileName) {
         // 특수문자 \ / : * ? " < > | 를 _ 로 치환
-        return fileName.replaceAll("[\\\\/:*?\"<>|]", "_");
+        return fileName.replaceAll(SPECIAL_CHARS_PATTERN, REPLACEMENT_CHAR);
     }
 
 }
