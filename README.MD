@@ -1,152 +1,72 @@
-# 📘 ExcelProcessor
+# ExcelReportManager
 
-POI 기반 엑셀 리포트 유틸리티 라이브러리  
-템플릿 업로드, 시트별 데이터 삽입, 멀티시트 리포트 생성 기능 제공
-
----
-
-## 📦 설치 (JitPack)
-
-```gradle
-repositories {
-    maven { url 'https://jitpack.io' }
-}
-
-dependencies {
-    implementation 'com.github.사용자명:Excel-Library:버전'
-}
-```
-
-> `사용자명`과 `버전`은 JitPack에서 배포한 주소를 확인하세요.
+## 소개
+ExcelReportManager는 엑셀 리포트를 생성, 수정, 관리하기 위한 유틸리티 및 전략 기반 모듈
 
 ---
 
-## 🚀 주요 기능
-
-| 기능 | 설명 |
-|------|------|
-| 템플릿 저장 | 업로드한 엑셀 파일을 서버에 저장 |
-| 시트 목록 조회 | 템플릿에 포함된 시트 이름 리스트 반환 |
-| 단일 시트 리포트 | 특정 시트에 데이터 삽입 후 결과 반환 |
-| 멀티 시트 리포트 | 여러 시트에 각각 데이터 삽입 가능 |
-| 열 너비 자동 조절 | 시트 내 데이터 길이에 따라 자동 맞춤 적용 |
+## 목적
+ExcelReportManager는 프로젝트에서 반복적인 엑셀 리포트 생성 및 관리 작업을 보다 효율화하기 위해 설계되었습니다.
+이를 통해 코드를 단순화하고 유지보수를 용이하게 할 수 있습니다.
 
 ---
 
-## 🧩 클래스 구성
+## 주요 구성 요소
+- **ExcelFactory**: 엑셀 파일 생성 도구.
+- **ExcelFileUtils/ExcelSheetUtils**: 파일 및 시트 작업 유틸리티.
+- **ExcelReportProcessor**: 리포트 생성/처리 핵심 클래스.
+- **ExcelReportStrategy**: 커스텀 엑셀 리포트 생성을 위한 전략 패턴 인터페이스.
+- **NaverReportStrategy**: 네이버 광고 리포트 생성을 위한 구현체.
 
-- `ExcelService` : 라이브러리 통합 진입점
-- `TemplateManager` : 템플릿 저장소 관리
-- `ExcelFileProcessor` : 엑셀 읽기/쓰기 처리
-- `ExcelSheetWriter` : 시트별 데이터 삽입 및 기본 설정
-- `SheetDataRequest` : 멀티 시트용 데이터 모델
 
----
+### NaverReportStrategy
 
-## ✅ 사용 예제
+`NaverReportStrategy`는 Excel 리포트를 생성하기 위한 전략 클래스입니다.  
+해당 클래스의 구현 로직 **`fillReport` 메서드**는 각자의 요구 사항에 따라 **직접 커스텀**하여 사용해야 합니다.
 
-### 1. 템플릿 저장
+### 참고 사항
+- `NaverReportStrategy`는 `ExcelReportStrategy` 인터페이스를 구현합니다.
+- `fillReport(Workbook workbook, ReportData reportData)` 메서드를 커스텀하여, 원하는 리포트 생성 로직을 추가하세요.
+- 구체적인 비즈니스 로직은 사용자에 따라 다를 수 있으며, 이를 기반으로 리포트를 동적으로 생성할 수 있습니다.
 
+### 예시
 ```java
-ExcelService service = new ExcelService(new File("excel_templates"));
-try (InputStream in = new FileInputStream("template.xlsx")) {
-    service.saveTemplate("template.xlsx", in);
-}
-```
+public class NaverReportStrategy implements ExcelReportStrategy {
 
-### 2. 시트 이름 조회
-
-```java
-List<String> sheets = service.getSheetNames("template.xlsx");
-```
-
-### 3. 단일 시트 리포트 생성
-
-```java
-List<Map<String, String>> data = List.of(
-    Map.of("Name", "Alice", "Score", "95"),
-    Map.of("Name", "Bob", "Score", "88")
-);
-
-ByteArrayOutputStream out = service.generateReport("template.xlsx", "ReportSheet", data);
-Files.write(Paths.get("report.xlsx"), out.toByteArray());
-```
-
-### 4. 멀티 시트 리포트 생성
-
-```java
-List<SheetDataRequest> sheets = List.of(
-    new SheetDataRequest("Sales", List.of(
-        Map.of("Product", "Laptop", "Quantity", "10"),
-        Map.of("Product", "Mouse", "Quantity", "25")
-    )),
-    new SheetDataRequest("Summary", List.of(
-        Map.of("Total", "35", "Date", "2025-04-19")
-    ))
-);
-
-ByteArrayOutputStream out = service.generateMultiSheetReport("template.xlsx", sheets);
-Files.write(Paths.get("multi_report.xlsx"), out.toByteArray());
-```
-
----
-
-## 🌐 Spring REST API 연동 예시
-
-```java
-@RestController
-@RequestMapping("/api/excel")
-public class ExcelController {
-    private final ExcelService service;
-
-    public ExcelController(ExcelService service) {
-        this.service = service;
+    @Override
+    public void fillReport(Workbook workbook, ReportData reportData) {
+        // 사용자의 요구 사항에 맞게 리포트 생성 로직을 정의하세요.
+        // 예: 특정 리포트 데이터를 Excel 시트에 추가하거나 서식을 지정하는 로직 구현
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<String> upload(@RequestParam MultipartFile file) {
-        try (InputStream in = file.getInputStream()) {
-            service.saveTemplate(file.getOriginalFilename(), in);
-            return ResponseEntity.ok("Uploaded");
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body("Error");
-        }
+}
+```
+
+위 내용을 참고하여 필요에 맞는 구현을 자유롭게 구성하세요.
+---
+
+## 사용 예시
+```java
+// 프로젝트에 의존성 추가
+@Configuration
+public class ExcelManagerConfiguration {
+
+    @Value("${excel.template-dir}")
+    private String templateDir;
+
+    @Bean
+    public ExcelReportProcessor excelReportProcessor() {
+        Map<ReportType, ExcelReportStrategy> strategies = Map.of(
+                ReportType.NAVER, new NaverReportStrategy()
+        );
+        return new ExcelReportProcessor(strategies, Path.of(templateDir));
     }
+
 }
 ```
 
 ---
 
-## 📂 템플릿 저장소 경로
-
-라이브러리 생성 시 지정한 `File` 디렉토리에 템플릿이 저장됩니다:
-
-```java
-new ExcelService(new File("excel_templates"))
-```
-
----
-
-## 📌 의존성
-
-- Java 17+
-- Apache POI
-
-```gradle
-implementation 'org.apache.poi:poi:5.2.5'
-implementation 'org.apache.poi:poi-ooxml:5.2.5'
-```
-
----
-
-## 🛠 To-Do
-
-- 셀 스타일 지정 기능
-- 셀 위치 지정 삽입 (row, col 지정)
-- 동적 시트 생성 옵션
-
----
-
-## 📄 라이선스
-
-MIT License
+## 요구사항
+- **Java 버전**: 17 이상
+- **사용 라이브러리**: Apache POI, Lombok
