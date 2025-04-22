@@ -45,7 +45,7 @@ public class NaverReportStrategy implements ExcelReportStrategy {
 위 내용을 참고하여 필요에 맞는 구현을 자유롭게 구성하세요.
 ---
 
-## 사용 예시
+## 의존성 추가 예시
 ```java
 // 프로젝트에 의존성 추가
 @Configuration
