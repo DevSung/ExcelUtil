@@ -1,7 +1,11 @@
 package com.devsung.excel.processor;
 
 
-import com.devsung.excel.core.ExcelFactory;import com.devsung.excel.model.ReportData;import com.devsung.excel.model.ReportType;import com.devsung.excel.strategy.ExcelReportStrategy;import org.apache.poi.ss.usermodel.Workbook;
+import com.devsung.excel.core.ExcelFactory;
+import com.devsung.excel.model.ReportData;
+import com.devsung.excel.model.ReportType;
+import com.devsung.excel.strategy.ExcelReportStrategy;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,17 +39,6 @@ public class ExcelReportProcessor {
         }
         return result.resolve(templateName);
 
-    }
-
-    /**
-     * 리포트를 생성 (기본 템플릿 디렉토리 사용)
-     *
-     * @param reportData 리포트 데이터
-     * @return 생성된 Workbook
-     * @throws IOException 템플릿 파일을 읽는 중 오류 발생 시
-     */
-    public Workbook generateReport(ReportData reportData) throws IOException {
-        return generateReport(reportData, new String[0]);
     }
 
     /**
