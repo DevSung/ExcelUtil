@@ -43,4 +43,24 @@ public class ExcelSheetUtils {
         return sheet.getPhysicalNumberOfRows() == 0;
     }
 
+    /**
+     * 시트의 모든 데이터를 삭제합니다. (1행 제외 - 헤더)
+     *
+     * @param workbook  엑셀 워크북
+     * @param sheetName 시트 이름
+     * @return 삭제 성공 여부
+     */
+    public static boolean deleteSheetData(Workbook workbook, String sheetName) {
+        Sheet sheet = getSheetByName(workbook, sheetName);
+        if (sheet == null) {
+            return false;
+        }
+
+        int lastRowNum = sheet.getLastRowNum();
+        for (int i = lastRowNum; i > 0; i--) {
+            sheet.removeRow(sheet.getRow(i));
+        }
+        return true;
+    }
+
 }
