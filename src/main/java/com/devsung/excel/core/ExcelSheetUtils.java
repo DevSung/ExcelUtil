@@ -1,5 +1,6 @@
 package com.devsung.excel.core;
 
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -41,6 +42,28 @@ public class ExcelSheetUtils {
      */
     public static boolean isSheetEmpty(Sheet sheet) {
         return sheet.getPhysicalNumberOfRows() == 0;
+    }
+
+    /**
+     * 시트의 1행(헤더)을 제외하고 데이터가 있는지 확인합니다.
+     *
+     * @param sheet 엑셀 시트
+     * @return 1행을 제외한 데이터가 하나도 없으면 true(비어있음), 있으면 false
+     */
+    public static boolean isSheetBodyEmpty(Sheet sheet) {
+        int lastRowNum = sheet.getLastRowNum();
+        // 데이터가 헤더만 있는 경우 (행이 1개 이하)
+        if (lastRowNum < 1) {
+            return true;
+        }
+        // 2번째 행부터 마지막 행까지 데이터가 실제로 있는지 확인
+        for (int i = 1; i <= lastRowNum; i++) {
+            Row row = sheet.getRow(i);
+            if (row != null && row.getPhysicalNumberOfCells() > 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
