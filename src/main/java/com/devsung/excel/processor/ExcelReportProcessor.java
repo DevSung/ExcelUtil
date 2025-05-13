@@ -15,7 +15,7 @@ import java.util.Map;
 public class ExcelReportProcessor {
 
     private final Map<ReportType, ExcelReportStrategy> strategyMap;
-    private final Path templateDir; // 기본 템플릿 디렉토리
+    private final Path templateDir;
 
     public ExcelReportProcessor(Map<ReportType, ExcelReportStrategy> strategyMap, Path templateDir) {
         this.strategyMap = strategyMap;
@@ -42,23 +42,20 @@ public class ExcelReportProcessor {
     }
 
     /**
-     * 리포트를 생성 (기본 템플릿 디렉토리 사용 + 추가 경로)
+     * 리포트 생성
      *
      * @param reportData 리포트 데이터
-     * @param paths      템플릿 파일 경로
+     * @param path       템플릿 추가 경로 (없으면 기본 템플릿 디렉토리 사용)
      * @return 생성된 Workbook
      * @throws IOException 템플릿 파일을 읽는 중 오류 발생 시
      */
-    public Workbook generateReport(ReportData reportData, String... paths) throws IOException {
-        // 템플릿 파일 경로 설정
-        Path templatePath = resolveTemplatePath(reportData.templateName(), paths);
-
-        if (!Files.exists(templatePath)) {
+    public Workbook generateReport(ReportData reportData, Path path) throws IOException {
+        if (!Files.exists(path)) {
             throw new IllegalArgumentException("Template file not found: " + reportData.templateName());
         }
 
         // 템플릿 로드
-        Workbook workbook = ExcelFactory.loadTemplate(templatePath);
+        Workbook workbook = ExcelFactory.loadTemplate(path);
 
         // 전략 설정
         ExcelReportStrategy strategy = strategyMap.get(reportData.type());

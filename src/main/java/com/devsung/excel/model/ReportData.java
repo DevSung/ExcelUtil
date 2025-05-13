@@ -6,9 +6,8 @@ import java.util.List;
 
 public record ReportData(
         ReportType type,
-        Long reportId,
         String templateName,
-        List<ReportSheetData> sheetData
+        List<ReportSheetData<?>> sheetData
 ) {
     public ReportData {
         if (templateName == null || templateName.isEmpty()) {

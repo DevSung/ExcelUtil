@@ -1,10 +1,8 @@
 package com.devsung.excel.model;
 
-import org.apache.poi.ss.formula.functions.T;
-
 import java.util.List;
 
-public record ReportSheetData(
+public record ReportSheetData<T>(
         String sheetName,
         List<T> data
 ) {

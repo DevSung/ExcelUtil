@@ -1,10 +1,7 @@
 package com.devsung.excel.core;
 
-import org.apache.poi.ss.usermodel.Workbook;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -13,8 +10,6 @@ import java.util.Set;
 public class ExcelFileUtils {
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".xlsx", ".xls");
-    private static final String SPECIAL_CHARS_PATTERN = "[\\\\/:*?\"<>|]";
-    private static final String REPLACEMENT_CHAR = "_";
 
     /**
      * 엑셀 템플릿 파일을 저장합니다.
@@ -30,29 +25,13 @@ public class ExcelFileUtils {
         // 파일명에서 특수문자를 치환
         String sanitizedTemplateName = sanitizeFileName(templateName);
 
-        // 새로운 저장 경로 생성
-        Path sanitizedSavePath = savePath.resolveSibling(sanitizedTemplateName);
-
         // 디렉토리가 존재하지 않으면 생성
-        if (!Files.exists(sanitizedSavePath.getParent())) {
-            Files.createDirectories(sanitizedSavePath.getParent());
+        if (!Files.exists(savePath.getParent())) {
+            Files.createDirectories(savePath.getParent());
         }
 
         // 파일 복사
-        Files.copy(inputStream, sanitizedSavePath, StandardCopyOption.REPLACE_EXISTING);
-    }
-
-    /**
-     * 주어진 Workbook 객체를 출력 스트림에 작성합니다.
-     *
-     * @param workbook 작성할 Workbook 객체
-     * @param out      출력 스트림
-     * @throws IOException 워크북 작성 중 오류가 발생한 경우
-     */
-    public static void write(Workbook workbook, OutputStream out) throws IOException {
-        try (workbook) {
-            workbook.write(out);
-        }
+        Files.copy(inputStream, savePath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
@@ -102,7 +81,7 @@ public class ExcelFileUtils {
      */
     private static String sanitizeFileName(String fileName) {
         // 특수문자 \ / : * ? " < > | 를 _ 로 치환
-        return fileName.replaceAll(SPECIAL_CHARS_PATTERN, REPLACEMENT_CHAR);
+        return fileName.replaceAll("[\\\\/:*?\"<>|]", "_");
     }
 
 }
